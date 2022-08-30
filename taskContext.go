@@ -14,7 +14,7 @@ type TaskContext struct {
 
 // SetNextTime 设置休眠时间
 func (receiver *TaskContext) SetNextTime(nextTime time.Time) {
-	if nextTime.UnixMicro() < time.Now().UnixMicro() {
+	if nextTime.UnixMilli() < time.Now().UnixMilli() {
 		panic("nextTime时间，必须在当前时间之后")
 	}
 	receiver.nextRunAt = nextTime

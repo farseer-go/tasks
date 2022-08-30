@@ -1,7 +1,6 @@
 package tasks
 
 import (
-	"fmt"
 	"testing"
 	"time"
 )
@@ -12,5 +11,5 @@ func TestRun(t *testing.T) {
 }
 
 func testRunFN(context *TaskContext) {
-	fmt.Println(time.Now())
+	flog.Info(time.Now())
 }

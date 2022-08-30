@@ -1,8 +1,8 @@
 package tasks
 
 import (
+	"github.com/farseer-go/fs/flog"
 	"github.com/farseer-go/fs/stopwatch"
-	"log"
 	"time"
 )
 
@@ -31,7 +31,7 @@ func Run(taskName string, isRunNow bool, interval time.Duration, taskFn func(con
 func runTask(taskName string, interval time.Duration, taskFn func(context *TaskContext)) {
 	defer func() {
 		if r := recover(); r != nil {
-			log.Fatalf("taskFn [%s] throw exception：%s", taskName, r)
+			flog.Errorf("taskFn [%s] throw exception：%s", taskName, r)
 		}
 	}()
 	context := &TaskContext{

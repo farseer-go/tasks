@@ -15,7 +15,7 @@ Process-level tasks
 // custom your job
 // context can set Execute NextTime Or Use Default Interval
 func testRun(context *tasks.TaskContext) {
-	fmt.Println(time.Now())
+	flog.Info(time.Now())
 }
 
 // "testRun" = taskName
