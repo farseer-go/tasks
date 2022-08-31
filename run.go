@@ -52,18 +52,20 @@ func RunNow(taskName string, interval time.Duration, taskFn func(context *TaskCo
 }
 
 // 运行任务
-func runTask(taskName string, interval time.Duration, taskFn func(context *TaskContext)) time.Duration {
+func runTask(taskName string, interval time.Duration, taskFn func(context *TaskContext)) (nextInterval time.Duration) {
 	defer func() {
 		if r := recover(); r != nil {
 			flog.Errorf("taskFn [%s] throw exception：%s", taskName, r)
 		}
 	}()
+	// 这里需要提前设置默认的间隔时间。如果发生异常时，不提前设置会=0
+	nextInterval = interval
 	taskContext := &TaskContext{
 		sw: stopwatch.StartNew(),
 	}
 	taskFn(taskContext)
 	if taskContext.nextRunAt.Year() >= 2022 {
-		return taskContext.nextRunAt.Sub(time.Now())
+		nextInterval = taskContext.nextRunAt.Sub(time.Now())
 	}
-	return interval
+	return
 }
