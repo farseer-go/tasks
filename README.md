@@ -8,19 +8,24 @@ Process-level tasks
             * `.SetNextTime（设置休眠时间）`
             * `.SetNextDuration（设置休眠时间）`
     * `func`
-        * `Run （运行一个任务）`
+        * `Run （先休眠再运行任务）`
+        * `RunNow （立即运行任务）`
 
 ## Getting Started
 ```go
 // custom your job
 // context can set Execute NextTime Or Use Default Interval
 func testRun(context *tasks.TaskContext) {
-	flog.Info(time.Now())
+	flog.Info("doing...")
 }
 
 // "testRun" = taskName
-// true = Execute Now
 // 1*time.Second = Interval time
 // testRun = job func
-tasks.Run("testRun", true, 1*time.Second, testRun)
+tasks.Run("testRun", 1*time.Second, testRun, context.Background())
+
+// "testRun" = taskName
+// 1*time.Second = Interval time
+// testRun = job func
+tasks.RunNow("testRun", 1*time.Second, testRun, context.Background())
 ```
