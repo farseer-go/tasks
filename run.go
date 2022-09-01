@@ -55,7 +55,7 @@ func RunNow(taskName string, interval time.Duration, taskFn func(context *TaskCo
 func runTask(taskName string, interval time.Duration, taskFn func(context *TaskContext)) (nextInterval time.Duration) {
 	defer func() {
 		if r := recover(); r != nil {
-			flog.Errorf("taskFn [%s] throw exception：%s", taskName, r)
+			flog.Errorf("[%s] throw exception：%s", taskName, r)
 		}
 	}()
 	// 这里需要提前设置默认的间隔时间。如果发生异常时，不提前设置会=0
