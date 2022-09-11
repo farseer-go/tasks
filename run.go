@@ -61,7 +61,7 @@ func runTask(taskName string, interval time.Duration, taskFn func(context *TaskC
 			sw: stopwatch.StartNew(),
 		}
 		taskFn(taskContext)
-		flog.AppInfof("task", "%s，耗时：%s", taskName, taskContext.sw.GetMillisecondsText())
+		flog.ComponentInfof("task", "%s，耗时：%s", taskName, taskContext.sw.GetMillisecondsText())
 		if taskContext.nextRunAt.Year() >= 2022 {
 			nextInterval = taskContext.nextRunAt.Sub(time.Now())
 		}
