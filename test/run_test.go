@@ -2,9 +2,9 @@ package test
 
 import (
 	"context"
+	"fmt"
 	"github.com/farseer-go/tasks"
 	"github.com/stretchr/testify/assert"
-	"sync"
 	"testing"
 	"time"
 )
@@ -16,21 +16,18 @@ func TestRun(t *testing.T) {
 		}, context.Background())
 	})
 
-	lock := &sync.Mutex{}
-	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
 	defer cancel()
-	count := 0
+	now := time.Now()
 	tasks.Run("testRun", 10*time.Millisecond, func(context *tasks.TaskContext) {
-		lock.Lock()
-		defer lock.Unlock()
-		count++
+		s := time.Since(now) - 10*time.Millisecond
+		if s >= 6*time.Millisecond || s < time.Nanosecond {
+			t.Fatal(fmt.Sprintf("时间不对:%d", s.Milliseconds()))
+		}
+		now = time.Now()
 	}, ctx)
 
-	time.Sleep(50 * time.Millisecond)
-	lock.Lock()
-	defer lock.Unlock()
-
-	assert.Equal(t, 4, count)
+	time.Sleep(500 * time.Millisecond)
 }
 
 func TestRunNow(t *testing.T) {
@@ -40,24 +37,19 @@ func TestRunNow(t *testing.T) {
 		}, context.Background())
 	})
 
-	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
 	defer cancel()
 
-	var lock sync.Mutex
-	count := 0
+	now := time.Now().Add(-10 * time.Millisecond)
 	tasks.RunNow("testRunNow", 10*time.Millisecond, func(context *tasks.TaskContext) {
-		lock.Lock()
-		defer lock.Unlock()
-
-		count++
+		s := time.Since(now) - 10*time.Millisecond
+		if s >= 6*time.Millisecond || s < time.Nanosecond {
+			t.Fatal(fmt.Sprintf("时间不对:%d", s.Milliseconds()))
+		}
+		now = time.Now()
 	}, ctx)
 
-	time.Sleep(50 * time.Millisecond)
-
-	lock.Lock()
-	defer lock.Unlock()
-
-	assert.Equal(t, 5, count)
+	time.Sleep(500 * time.Millisecond)
 }
 
 func TestRunPanic(t *testing.T) {
@@ -75,40 +67,35 @@ func TestRunPanic(t *testing.T) {
 }
 
 func TestSetNextDuration(t *testing.T) {
-	count := 0
-	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
 	defer cancel()
 
-	var lock sync.Mutex
+	now := time.Now().Add(20 * time.Millisecond)
 	tasks.Run("testRun", 20*time.Millisecond, func(context *tasks.TaskContext) {
-		lock.Lock()
-		defer lock.Unlock()
-
+		s := time.Since(now)
+		if s >= 6*time.Millisecond || s < time.Nanosecond {
+			t.Fatal(fmt.Sprintf("时间不对:%d", s.Milliseconds()))
+		}
+		now = time.Now().Add(10 * time.Millisecond)
 		context.SetNextDuration(10 * time.Millisecond)
-		count++
 	}, ctx)
-	time.Sleep(50 * time.Millisecond)
-	lock.Lock()
-	defer lock.Unlock()
 
-	assert.Equal(t, 3, count)
+	time.Sleep(500 * time.Millisecond)
 }
 
 func TestSetNextTime(t *testing.T) {
-	var lock sync.Mutex
-	count := 0
-	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
-	tasks.Run("testRun", 20*time.Millisecond, func(context *tasks.TaskContext) {
-		lock.Lock()
-		defer lock.Unlock()
+	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
+	defer cancel()
 
-		context.SetNextTime(time.Now().Add(10 * time.Millisecond))
-		count++
+	now := time.Now().Add(20 * time.Millisecond)
+	tasks.Run("testRun", 20*time.Millisecond, func(context *tasks.TaskContext) {
+		s := time.Since(now)
+		if s >= 6*time.Millisecond || s < time.Nanosecond {
+			t.Fatal(fmt.Sprintf("时间不对:%d", s.Milliseconds()))
+		}
+		now = time.Now().Add(10 * time.Millisecond)
+		context.SetNextTime(now)
 	}, ctx)
-	time.Sleep(50 * time.Millisecond)
-	cancel()
-	lock.Lock()
-	defer lock.Unlock()
-	
-	assert.Equal(t, 3, count)
+
+	time.Sleep(500 * time.Millisecond)
 }
