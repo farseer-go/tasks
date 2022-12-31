@@ -40,7 +40,7 @@ func RunNow(taskName string, interval time.Duration, taskFn func(context *TaskCo
 	}
 
 	go func() {
-		taskInterval := time.Duration(0)
+		taskInterval := runTask(taskName, interval, taskFn)
 		for {
 			select {
 			case <-ctx.Done():
