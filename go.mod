@@ -2,7 +2,7 @@ module github.com/farseer-go/tasks
 
 go 1.19
 
-require github.com/farseer-go/fs v0.5.1-0.20230101111313-3216f37fdc4b
+require github.com/farseer-go/fs v0.5.1-0.20230104092140-5fa094db9243
 
 require (
 	github.com/kr/pretty v0.3.0 // indirect
