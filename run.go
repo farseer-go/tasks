@@ -67,7 +67,7 @@ func runTask(taskName string, interval time.Duration, taskFn func(context *TaskC
 		}
 	})
 	try.CatchException(func(exp any) {
-		flog.Errorf("[%s] throw exception：%s", taskName, exp)
+		_ = flog.Errorf("[%s] throw exception：%s", taskName, exp)
 	})
 	return
 }
