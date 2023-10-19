@@ -2,9 +2,11 @@ package tasks
 
 import (
 	"context"
+	"github.com/farseer-go/fs/container"
 	"github.com/farseer-go/fs/exception"
 	"github.com/farseer-go/fs/flog"
 	"github.com/farseer-go/fs/stopwatch"
+	"github.com/farseer-go/fs/trace"
 	"time"
 )
 
@@ -56,6 +58,7 @@ func RunNow(taskName string, interval time.Duration, taskFn func(context *TaskCo
 func runTask(taskName string, interval time.Duration, taskFn func(context *TaskContext)) (nextInterval time.Duration) {
 	// 这里需要提前设置默认的间隔时间。如果发生异常时，不提前设置会=0
 	nextInterval = interval
+	entryTask := container.Resolve[trace.IManager]().EntryTask(taskName)
 	try := exception.Try(func() {
 		taskContext := &TaskContext{
 			sw: stopwatch.StartNew(),
@@ -67,7 +70,8 @@ func runTask(taskName string, interval time.Duration, taskFn func(context *TaskC
 		}
 	})
 	try.CatchException(func(exp any) {
-		_ = flog.Errorf("[%s] throw exception：%s", taskName, exp)
+		entryTask.Error(flog.Errorf("[%s] throw exception：%s", taskName, exp))
 	})
+	entryTask.End()
 	return
 }
