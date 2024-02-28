@@ -36,22 +36,11 @@ func Run(taskName string, interval time.Duration, taskFn func(context *TaskConte
 // interval:任务运行的间隔时间
 // taskFn:要运行的任务
 func RunNow(taskName string, interval time.Duration, taskFn func(context *TaskContext), ctx context.Context) {
-	// 不立即运行，则先休眠interval时间
-	if interval <= 0 {
-		panic("interval参数，必须大于0")
-	}
-
-	go func() {
-		taskInterval := runTask(taskName, interval, taskFn)
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case <-time.After(taskInterval):
-				taskInterval = runTask(taskName, interval, taskFn)
-			}
-		}
-	}()
+	// 立即执行
+	taskFn(&TaskContext{
+		sw: stopwatch.StartNew(),
+	})
+	Run(taskName,interval,taskFn,ctx)
 }
 
 // 运行任务
