@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"context"
+	"github.com/farseer-go/fs/asyncLocal"
 	"github.com/farseer-go/fs/container"
 	"github.com/farseer-go/fs/exception"
 	"github.com/farseer-go/fs/flog"
@@ -40,7 +41,7 @@ func RunNow(taskName string, interval time.Duration, taskFn func(context *TaskCo
 	taskFn(&TaskContext{
 		sw: stopwatch.StartNew(),
 	})
-	Run(taskName,interval,taskFn,ctx)
+	Run(taskName, interval, taskFn, ctx)
 }
 
 // 运行任务
@@ -62,5 +63,6 @@ func runTask(taskName string, interval time.Duration, taskFn func(context *TaskC
 		entryTask.Error(flog.Errorf("[%s] throw exception：%s", taskName, exp))
 	})
 	entryTask.End()
+	asyncLocal.Release()
 	return
 }
