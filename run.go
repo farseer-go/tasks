@@ -2,13 +2,14 @@ package tasks
 
 import (
 	"context"
+	"time"
+
 	"github.com/farseer-go/fs/asyncLocal"
 	"github.com/farseer-go/fs/container"
 	"github.com/farseer-go/fs/exception"
 	"github.com/farseer-go/fs/flog"
 	"github.com/farseer-go/fs/stopwatch"
 	"github.com/farseer-go/fs/trace"
-	"time"
 )
 
 // Run 运行一个任务，运行前先休眠
