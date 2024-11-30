@@ -64,7 +64,7 @@ func runTask(taskName string, interval time.Duration, taskFn func(context *TaskC
 	try.CatchException(func(exp any) {
 		err = flog.Errorf("[%s] throw exception：%s", taskName, exp)
 	})
-	entryTask.End(err)
+	container.Resolve[trace.IManager]().Push(entryTask, err)
 	asyncLocal.Release()
 	return
 }
