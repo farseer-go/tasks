@@ -58,11 +58,11 @@ func runTask(taskName string, interval time.Duration, taskFn func(context *TaskC
 		taskFn(taskContext)
 		flog.ComponentInfof("task", "%s，耗时：%s", taskName, taskContext.sw.GetMillisecondsText())
 		if taskContext.nextRunAt.Year() >= 2022 {
-			nextInterval = taskContext.nextRunAt.Sub(time.Now())
+			nextInterval = time.Until(taskContext.nextRunAt)
 		}
 	})
 	try.CatchException(func(exp any) {
-		err = flog.Errorf("[%s] throw exception：%s", taskName, exp)
+		err = flog.Errorf("Task[%s] throw exception：%s", taskName, exp)
 	})
 	container.Resolve[trace.IManager]().Push(entryTask, err)
 	asyncLocal.Release()
