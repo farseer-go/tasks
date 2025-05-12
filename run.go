@@ -21,6 +21,7 @@ func Run(taskName string, interval time.Duration, taskFn func(context *TaskConte
 		panic("interval参数，必须大于0")
 	}
 
+	flog.Infof("启动本地任务：%s，间隔时间：%s", taskName, interval.String())
 	go func() {
 		taskInterval := interval
 		for {
