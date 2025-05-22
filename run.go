@@ -51,8 +51,7 @@ func runTask(taskName string, interval time.Duration, taskFn func(context *TaskC
 	// 这里需要提前设置默认的间隔时间。如果发生异常时，不提前设置会=0
 	nextInterval = interval
 	entryTask := container.Resolve[trace.IManager]().EntryTask(taskName)
-	var err error
-	try := exception.Try(func() {
+	exception.Try(func() {
 		taskContext := &TaskContext{
 			sw: stopwatch.StartNew(),
 		}
@@ -62,10 +61,7 @@ func runTask(taskName string, interval time.Duration, taskFn func(context *TaskC
 			nextInterval = time.Until(taskContext.nextRunAt)
 		}
 	})
-	try.CatchException(func(exp any) {
-		err = flog.Errorf("Task[%s] throw exception：%s", taskName, exp)
-	})
-	container.Resolve[trace.IManager]().Push(entryTask, err)
+	container.Resolve[trace.IManager]().Push(entryTask, nil)
 	asyncLocal.Release()
 	return
 }
