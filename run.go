@@ -50,6 +50,8 @@ func RunNow(taskName string, interval time.Duration, taskFn func(context *TaskCo
 func runTask(taskName string, interval time.Duration, taskFn func(context *TaskContext)) (nextInterval time.Duration) {
 	// 这里需要提前设置默认的间隔时间。如果发生异常时，不提前设置会=0
 	nextInterval = interval
+	// InitContext 初始化同一协程上下文，避免在同一协程中多次初始化
+	asyncLocal.InitContext()
 	entryTask := container.Resolve[trace.IManager]().EntryTask(taskName)
 	exception.Try(func() {
 		taskContext := &TaskContext{
