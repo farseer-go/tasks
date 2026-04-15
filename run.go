@@ -52,7 +52,7 @@ func runTask(taskName string, interval time.Duration, taskFn func(context *TaskC
 	nextInterval = interval
 	// InitContext 初始化同一协程上下文，避免在同一协程中多次初始化
 	asyncLocal.InitContext()
-	entryTask := container.Resolve[trace.IManager]().EntryTask(taskName)
+	traceContext := container.Resolve[trace.IManager]().EntryTask(taskName)
 	exception.Try(func() {
 		taskContext := &TaskContext{
 			sw: stopwatch.StartNew(),
@@ -62,8 +62,12 @@ func runTask(taskName string, interval time.Duration, taskFn func(context *TaskC
 		if taskContext.nextRunAt.Year() >= 2022 {
 			nextInterval = time.Until(taskContext.nextRunAt)
 		}
+	}).CatchException(func(exp any) {
+		if traceContext.IsIgnore() { // 如果忽略了链路,则要在这里打印错误日志
+			flog.Errorf("task %s 异常: %v", taskName, exp)
+		}
 	})
-	container.Resolve[trace.IManager]().Push(entryTask, nil)
+	container.Resolve[trace.IManager]().Push(traceContext, nil)
 	asyncLocal.Release()
 	return
 }
