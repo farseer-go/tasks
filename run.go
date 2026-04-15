@@ -2,9 +2,12 @@ package tasks
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/farseer-go/fs/asyncLocal"
+	"github.com/farseer-go/fs/color"
 	"github.com/farseer-go/fs/container"
 	"github.com/farseer-go/fs/exception"
 	"github.com/farseer-go/fs/flog"
@@ -64,7 +67,11 @@ func runTask(taskName string, interval time.Duration, taskFn func(context *TaskC
 		}
 	}).CatchException(func(exp any) {
 		if traceContext.IsIgnore() { // 如果忽略了链路,则要在这里打印错误日志
-			flog.Errorf("task %s 异常: %v", taskName, exp)
+			lstLogs := []string{fmt.Sprintf("task %s 异常: %v", taskName, exp)}
+			for index, exceptionStackDetail := range trace.GetCallerInfo() {
+				lstLogs = append(lstLogs, fmt.Sprintf("\t%d、%s:%s %s", index+1, exceptionStackDetail.ExceptionCallFile, color.Yellow(exceptionStackDetail.ExceptionCallLine), color.Red(exceptionStackDetail.ExceptionCallFuncName)))
+			}
+			flog.Error(strings.Join(lstLogs, "\n") + "\n")
 		}
 	})
 	container.Resolve[trace.IManager]().Push(traceContext, nil)
