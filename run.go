@@ -8,7 +8,6 @@ import (
 
 	"github.com/farseer-go/fs/asyncLocal"
 	"github.com/farseer-go/fs/color"
-	"github.com/farseer-go/fs/container"
 	"github.com/farseer-go/fs/exception"
 	"github.com/farseer-go/fs/flog"
 	"github.com/farseer-go/fs/stopwatch"
@@ -55,7 +54,7 @@ func runTask(taskName string, interval time.Duration, taskFn func(context *TaskC
 	nextInterval = interval
 	// InitContext 初始化同一协程上下文，避免在同一协程中多次初始化
 	asyncLocal.InitContext()
-	traceContext := container.Resolve[trace.IManager]().EntryTask(taskName)
+	traceContext := trace.Manager().EntryTask(taskName)
 	exception.Try(func() {
 		taskContext := &TaskContext{
 			sw: stopwatch.StartNew(),
@@ -74,7 +73,7 @@ func runTask(taskName string, interval time.Duration, taskFn func(context *TaskC
 			flog.Error(strings.Join(lstLogs, "\n") + "\n")
 		}
 	})
-	container.Resolve[trace.IManager]().Push(traceContext, nil)
+	trace.Manager().Push(traceContext, nil)
 	asyncLocal.Release()
 	return
 }
